@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Portal | Futuristic Authentication</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-light: #4dabf7;
+            --primary-dark: #1c7ed6;
+            --light-bg: #f8f9fa;
+            --light-card: rgba(255, 255, 255, 0.85);
+            --light-text: #343a40;
+            --dark-bg: #121212;
+            --dark-card: rgba(30, 30, 30, 0.85);
+            --dark-text: #e9ecef;
+            --accent: #da77f2;
+            --success: #40c057;
+            --error: #fa5252;
+            --blue: #3498db;
+            --green: #2ecc71;
+            --orange: #e67e22;
+            --purple: #9b59b6;
+            --red: #e74c3c;
+            --teal: #1abc9c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--dark-bg), #1a1a2e);
+            color: var(--light-text);
+            transition: background 1s ease;
+        }
+        
+        .light-mode {
+            background: linear-gradient(135deg, var(--light-bg), #e2e8f0);
+            color: var(--light-text);
+        }
+        
+        #particles-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .portal-card {
+            background: var(--light-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background: var(--light-bg);
+            transition: all 0.5s ease;
+        }
+        
+        .dark-mode .portal-card {
+            background: var(--dark-card);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            padding: 30px 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 4px 20px rgba(77, 171, 247, 0.4);
+        }
+        
+        .card-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .card-header p {
+            color: var(--light-text);
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .dark-mode .card-header p {
+            color: var(--dark-text);
+        }
+        
+        .ai-assistant {
+            position: absolute;
+            top: -50px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            z-index: 10;
+        }
+        
+        .card-body {
+            padding: 0 30px 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .form-container {
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        /* Dashboard Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--primary-dark);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .sidebar .logo h1 {
+            font-size: 24px;
+            color: white;
+            margin: 0;
+        }
+        
+        .sidebar .logo span {
+            color: var(--accent);
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-menu ul {
+            list-style: none;
+        }
+        
+        .nav-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .nav-menu li a:hover, .nav-menu li a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .nav-menu li a i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            margin-right: 20px;
+            color: var(--primary-dark);
+        }
+        
+        .header h2 {
+            color: var(--dark);
+            font-size: 22px;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid var(--primary-light);
+        }
+        
+        .user-profile span {
+            font-weight: 600;
+            color: var(--dark);
+            margin-right: 8px;
+        }
+        
+        .dashboard-cards {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .card-icon {
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+        
+        .bg-blue { background: var(--blue); }
+        .bg-green { background: var(--green); }
+        .bg-orange { background: var(--orange); }
+        .bg-purple { background: var(--purple); }
+        .bg-red { background: var(--red); }
+        .bg-teal { background: var(--teal); }
+        
+        .card-info {
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .card-info h3 {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        
+        .card-info p {
+            color: var(--light-text);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .card-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background: var(--primary-light);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .card-link:hover {
+            background: var(--primary-dark);
+        }
+        
+        .recent-activity {
+            padding: 0 30px 30px;
+        }
+        
+        .recent-activity h3 {
+            font-size: 20px;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .activity-item {
+            display: flex;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(77, 171, 247, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-dark);
+            font-size: 16px;
+        }
+        
+        .activity-details {
+            flex: 1;
+        }
+        
+        .activity-details p {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .activity-time {
+            font-size: 13px;
+            color: #777;
+        }
+        
+        .dashboard {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--light-bg);
+            color: var(--dark);
+            display: none;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .dashboard-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-header h2 {
+            font-size: 24px;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .dashboard-content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar .logo h1, 
+            .nav-menu li a span {
+                display: none;
+            }
+            
+            .nav-menu li a {
+                justify-content: center;
+                padding: 15px 0;
+            }
+            
+            .nav-menu li a i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        /* Rest of Quantum Portal styles */
+        .login-form, .signup-form, .face-capture, .qr-section, .qr-login {
+            width: 100%;
+            transition: transform 0.6s ease, opacity 0.4s ease;
+        }
+        
+        .signup-form, .face-capture, .qr-section, .qr-login {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateX(50px);
+            pointer-events: none;
+        }
+        
+        .show-signup .login-form {
+            opacity: 0;
+            transform: translateX(-50px);
+            pointer-events: none;
+        }
+        
+        .show-signup .signup-form {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+        
+        .show-face .signup-form {
+            opacity: 0;
+            transform: translateX(-50px);
+            pointer-events: none;
+        }
+        
+        .show-face .face-capture {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+        
+        .show-qr .face-capture {
+            opacity: 0;
+            transform: translateX(-50px);
+            pointer-events: none;
+        }
+        
+        .show-qr .qr-section {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+        
+        .show-qr-login .login-form {
+            opacity: 0;
+            transform: translateX(-50px);
+            pointer-events: none;
+        }
+        
+        .show-qr-login .qr-login {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--light-text);
+            font-size: 14px;
+        }
+        
+        .dark-mode .form-group label {
+            color: var(--dark-text);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark-mode .form-control {
+            background: rgba(30, 30, 30, 0.7);
+            color: var(--dark-text);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.2);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark-mode .form-control:focus {
+            background: rgba(40, 40, 40, 0.9);
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(77, 171, 247, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(77, 171, 247, 0.6);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary-light);
+            color: var(--primary-light);
+            margin-top: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(77, 171, 247, 0.1);
+        }
+        
+        .mode-toggle {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--light-text);
+        }
+        
+        .dark-mode .mode-toggle {
+            color: var(--dark-text);
+        }
+        
+        .mode-toggle a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-toggle a:hover {
+            text-decoration: underline;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark-mode .divider::before,
+        .dark-mode .divider::after {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .divider span {
+            padding: 0 15px;
+            font-size: 14px;
+            color: var(--light-text);
+            opacity: 0.7;
+        }
+        
+        .dark-mode .divider span {
+            color: var(--dark-text);
+        }
+        
+        .login-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .option-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark-mode .option-btn {
+            background: rgba(30, 30, 30, 0.7);
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option-btn i {
+            font-size: 20px;
+            color: var(--primary-dark);
+        }
+        
+        .live-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--light-text);
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+        
+        .dark-mode .live-stats {
+            color: var(--dark-text);
+        }
+        
+        .user-count {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 16px;
+        }
+        
+        .morph-circle {
+            position: absolute;
+            top: -200px;
+            left: -200px;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            z-index: -1;
+            transition: all 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .morphed .morph-circle {
+            border-radius: 24px;
+            top: -300px;
+            left: -100px;
+            width: 600px;
+            height: 900px;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(64, 192, 87, 0.4);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.5s ease;
+        }
+        
+        .badge.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .xp-bar {
+            height: 6px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .dark-mode .xp-bar {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .xp-progress {
+            height: 100%;
+            width: 30%;
+            background: linear-gradient(90deg, var(--primary-light), var(--accent));
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+        
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .dark-mode .sound-toggle {
+            background: var(--dark-card);
+        }
+        
+        .sound-toggle i {
+            font-size: 20px;
+            color: var(--primary-dark);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--light-card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        
+        .dark-mode .notification {
+            background: var(--dark-card);
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .notification.success {
+            color: var(--success);
+        }
+        
+        .notification.error {
+            color: var(--error);
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease;
+        }
+        
+        .face-capture-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .face-preview {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid var(--primary-light);
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .face-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .face-preview canvas {
+            display: none;
+        }
+        
+        .face-preview-placeholder {
+            font-size: 48px;
+            color: #ccc;
+        }
+        
+        .capture-btn {
+            margin-top: 20px;
+        }
+        
+        .qr-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .qr-info {
+            background: rgba(77, 171, 247, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .progress-ring {
+            position: absolute;
+            top: -25px;
+            right: -25px;
+            width: 150px;
+            height: 150px;
+            z-index: 5;
+        }
+        
+        .progress-ring__circle {
+            stroke: var(--primary-light);
+            stroke-width: 4;
+            fill: transparent;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .back-btn i {
+            color: var(--primary-dark);
+            font-size: 18px;
+        }
+        
+        .qr-login-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .qr-login-title {
+            margin-bottom: 20px;
+        }
+        
+        /* New animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .float {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .portal-card {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .quantum-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(77, 171, 247, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(77, 171, 247, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-grid"></div>
+    <div id="particles-3d"></div>
+    
+    <div class="container">
+        <div class="portal-card">
+            <div class="morph-circle"></div>
+            <div class="badge">Level 1 Unlocked! +50 XP</div>
+            
+            <div class="card-header">
+                <div class="ai-assistant" id="lottie-ai">
+                    <div class="pulse" style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg, #da77f2, #4dabf7);display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-robot" style="font-size:48px;color:white;"></i>
+                    </div>
+                </div>
+                <div class="logo pulse">
+                    <i class="fas fa-atom"></i>
+                </div>
+                <h1>College Portal</h1>
+                <p>Secure access to the next dimension</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="form-container">
+                    <!-- Login Form -->
+                    <div class="login-form">
+                        <div class="form-group">
+                            <label for="email">EMAIL ID</label>
+                            <input type="email" id="email" class="form-control" placeholder="your.id@quantum.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">PASSWORD</label>
+                            <input type="password" id="password" class="form-control" placeholder="••••••••">
+                        </div>
+                        
+                        <div class="xp-bar">
+                            <div class="xp-progress"></div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="login-btn">LOGIN</button>
+
+                        <div class="mode-toggle">
+                            New to Quantum? <a id="show-signup">Create Account</a>
+                        </div>
+                        
+                        <div class="divider">
+                            <span>or access with</span>
+                        </div>
+                        
+                        <div class="login-options">
+                            <button class="option-btn" id="face-login">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <button class="option-btn" id="qr-login-btn">
+                                <i class="fas fa-qrcode"></i>
+                            </button>
+                            <button class="option-btn">
+                                <i class="fab fa-google"></i>
+                            </button>
+                            <button class="option-btn">
+                                <i class="fab fa-apple"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="live-stats">
+                            <i class="fas fa-users"></i>
+                            <span><span class="user-count">3,295</span> users online now</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Signup Form -->
+                    <div class="signup-form">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" class="form-control" placeholder="Enter your full name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signup-email">EMAIL ID</label>
+                            <input type="email" id="signup-email" class="form-control" placeholder="your.id@quantum.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signup-password">PASSWORD</label>
+                            <input type="password" id="signup-password" class="form-control" placeholder="••••••••">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm PASSWORD</label>
+                            <input type="password" id="confirm-password" class="form-control" placeholder="••••••••">
+                        </div>
+                        
+                        <div class="xp-bar">
+                            <div class="xp-progress" style="width: 10%"></div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="signup-form-btn">Continue to Face Capture</button>
+                        
+                        <div class="mode-toggle">
+                            Already have an account? <a id="show-login">Sign In</a>
+                        </div>
+                        
+                        <div class="divider">
+                            <span>or sign up with</span>
+                        </div>
+                        
+                        <div class="login-options">
+                            <button class="option-btn">
+                                <i class="fab fa-google"></i>
+                            </button>
+                            <button class="option-btn">
+                                <i class="fab fa-apple"></i>
+                            </button>
+                            <button class="option-btn">
+                                <i class="fab fa-github"></i>
+                            </button>
+                            <button class="option-btn">
+                                <i class="fab fa-microsoft"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="live-stats">
+                            <i class="fas fa-rocket"></i>
+                            <span>Join <span class="user-count">15,832</span> quantum explorers</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Face Capture Section -->
+                    <div class="face-capture">
+                        <div class="back-btn" id="back-to-signup">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                        
+                        <div class="face-capture-container">
+                            <h3>Biometric Enrollment</h3>
+                            <p>Position your face in the circle for facial recognition</p>
+                            
+                            <div class="face-preview">
+                                <div class="face-preview-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <video id="video" autoplay playsinline></video>
+                                <canvas id="canvas"></canvas>
+                            </div>
+                            
+                            <button class="btn btn-primary capture-btn" id="capture-btn">Capture Face</button>
+                            
+                            <div class="qr-info">
+                                <p><i class="fas fa-shield-alt"></i> Your facial data is encrypted and stored securely</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- QR Code Section -->
+                    <div class="qr-section">
+                        <div class="back-btn" id="back-to-face">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                        
+                        <div class="qr-container">
+                            <h3>Account Created Successfully!</h3>
+                            <p>Your  ID is ready to use</p>
+                            
+                            <div class="qr-code" id="qrcode"></div>
+                            
+                            <div class="qr-info">
+                                <p><i class="fas fa-qrcode"></i> Scan this QR code to login on other devices</p>
+                                <p><i class="fas fa-user"></i> Your face is now registered for biometric login</p>
+                            </div>
+                            
+                            <button class="btn btn-primary" id="login-after-signup">Login to Quantum Portal</button>
+                        </div>
+                    </div>
+                    
+                    <!-- QR Login Section -->
+                    <div class="qr-login">
+                        <div class="back-btn" id="back-to-login">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                        
+                        <div class="qr-login-container">
+                            <h3 class="qr-login-title">Scan Your QR Code</h3>
+                            
+                            <div class="qr-code" id="qr-login-display"></div>
+                            
+                            <div class="qr-info">
+                                <p><i class="fas fa-mobile-alt"></i> Use the Quantum Authenticator app to scan</p>
+                                <p><i class="fas fa-user-shield"></i> Secure and encrypted login</p>
+                            </div>
+                            
+                            <button class="btn btn-primary" id="qr-login-submit">Login with QR Code</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Section -->
+    <div class="dashboard" id="dashboard">
+        <div class="sidebar">
+            <div class="logo">
+                <h1>College<span>Pro</span></h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="" class="active"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                    <li><a href="results.html"><i class="fas fa-chart-line"></i> <span>Results</span></a></li>
+                    <li><a href="library.html"><i class="fas fa-book"></i> <span>Library</span></a></li>
+                    <li><a href="fees.html"><i class="fas fa-money-bill-wave"></i> <span>Fees</span></a></li>
+                    <li><a href="timetable.html"><i class="fas fa-calendar-alt"></i> <span>Time Table</span></a></li>
+                    <li><a href="homework.html"><i class="fas fa-tasks"></i> <span>Homework</span></a></li>
+                    <li><a href="attendance.html"><i class="fas fa-user-check"></i> <span>Attendance</span></a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=4dabf7&color=fff" alt="User" id="user-avatar">
+                        <span id="username">Admin</span>
+                        <i class="fas fa-chevron-down"></i>
+                        <button class="logout-btn" id="dashboard-logout">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-icon bg-blue">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Results</h3>
+                        <p>View and manage student results</p>
+                        <a href="results.html" class="card-link">Go to Results</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon bg-green">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Library</h3>
+                        <p>Manage books and resources</p>
+                        <a href="library.html" class="card-link">Go to Library</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon bg-orange">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Fees</h3>
+                        <p>Manage student fees</p>
+                        <a href="fees.html" class="card-link">Go to Fees</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon bg-purple">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Time Table</h3>
+                        <p>View and manage schedules</p>
+                        <a href="timetable.html" class="card-link">Go to Time Table</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon bg-red">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Homework</h3>
+                        <p>Assign and track homework</p>
+                        <a href="homework.html" class="card-link">Go to Homework</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon bg-teal">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="card-info">
+                        <h3>Attendance</h3>
+                        <p>Track student attendance</p>
+                        <a href="attendance.html" class="card-link">Go to Attendance</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p>New book added to library</p>
+                            <span class="activity-time">2 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p>Fees payment received</p>
+                            <span class="activity-time">5 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p>Attendance marked for Class 10</p>
+                            <span class="activity-time">1 day ago</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p>New homework assigned to Grade 12</p>
+                            <span class="activity-time">2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sound-toggle">
+        <i class="fas fa-volume-up"></i>
+    </div>
+    
+    <div class="notification">Welcome back, Explorer! Ready to make history today?</div>
+
+    <script>
+        // User data storage and management
+        const UserData = {
+            // Store users in localStorage
+            users: JSON.parse(localStorage.getItem('quantumUsers')) || [],
+            
+            // Save users to localStorage
+            saveUsers: function() {
+                localStorage.setItem('quantumUsers', JSON.stringify(this.users));
+            },
+            
+            // Add a new user
+            addUser: function(user) {
+                // Check if user already exists
+                const existingUser = this.users.find(u => u.email === user.email);
+                if (existingUser) {
+                    return false;
+                }
+                
+                this.users.push(user);
+                this.saveUsers();
+                return true;
+            },
+            
+            // Authenticate user
+            authenticate: function(email, password) {
+                return this.users.find(user => 
+                    user.email === email && user.password === password
+                );
+            },
+            
+            // Get current user from session
+            getCurrentUser: function() {
+                return JSON.parse(sessionStorage.getItem('currentUser'));
+            },
+            
+            // Set current user in session
+            setCurrentUser: function(user) {
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+            },
+            
+            // Clear current user session
+            clearSession: function() {
+                sessionStorage.removeItem('currentUser');
+            },
+            
+            // Initialize with a sample user if none exists
+            initialize: function() {
+                if (this.users.length === 0) {
+                    this.addUser({
+                        name: "Admin User",
+                        email: "admin@college.edu",
+                        password: "admin123",
+                        role: "Administrator",
+                        faceData: null,
+                        qrData: null,
+                        lastLogin: new Date()
+                    });
+                }
+            }
+        };
+        
+        // Initialize user data
+        UserData.initialize();
+        
+        // Current user reference
+        let currentUser = null;
+        
+        // Dynamic Day/Night Mode
+        function setThemeBasedOnTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const isDayTime = hours >= 7 && hours < 19;
+            
+            document.body.classList.toggle('light-mode', isDayTime);
+            document.body.classList.toggle('dark-mode', !isDayTime);
+        }
+        
+        // Initialize theme
+        setThemeBasedOnTime();
+        
+        // Update theme every minute
+        setInterval(setThemeBasedOnTime, 60000);
+        
+        // Create floating particles
+        function createFloatingParticles() {
+            const container = document.querySelector('.quantum-grid');
+            const particlesCount = 50;
+            
+            for (let i = 0; i < particlesCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Random animation
+                const duration = 15 + Math.random() * 15;
+                particle.style.animation = `float ${duration}s ease-in-out infinite`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // 3D Particles Background with Three.js
+        function initParticles() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('particles-3d').appendChild(renderer.domElement);
+            
+            // Create particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 2000;
+            
+            const posArray = new Float32Array(particlesCount * 3);
+            const colorArray = new Float32Array(particlesCount * 3);
+            
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 50;
+                colorArray[i] = Math.random();
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+            
+            // Material
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.1,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            // Points system
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            camera.position.z = 5;
+            
+            // Mouse movement effect
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                particlesMesh.rotation.x += 0.001;
+                particlesMesh.rotation.y += 0.001;
+                
+                // Move particles with mouse
+                camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
+                camera.position.y += (mouseY * 2 - camera.position.y) * 0.02;
+                camera.lookAt(scene.position);
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Initialize particles when Three.js is loaded
+        window.addEventListener('load', () => {
+            initParticles();
+            createFloatingParticles();
+        });
+        
+        // AI Assistant animation
+        function initAIAssistant() {
+            const aiElement = document.querySelector('.ai-assistant');
+            
+            setInterval(() => {
+                aiElement.style.transform = 'translateY(-5px)';
+                setTimeout(() => {
+                    aiElement.style.transform = 'translateY(0)';
+                }, 500);
+            }, 3000);
+        }
+        
+        // Form morphing animation
+        function morphForm() {
+            const card = document.querySelector('.portal-card');
+            card.classList.add('morphed');
+            
+            setTimeout(() => {
+                // Simulate AI voice greeting
+                const notification = document.querySelector('.notification');
+                notification.textContent = "Welcome to Quantum Portal!";
+                notification.classList.add('show', 'success');
+                
+                // Hide notification after delay
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }, 800);
+        }
+        
+        // Toggle between login and signup
+        function toggleForms() {
+            const portalCard = document.querySelector('.portal-card');
+            portalCard.classList.toggle('show-signup');
+            
+            // Update notification based on form
+            const notification = document.querySelector('.notification');
+            if (portalCard.classList.contains('show-signup')) {
+                notification.textContent = "Create your Quantum ID to begin your journey!";
+            } else {
+                notification.textContent = "Welcome back, Explorer! Ready to make history today?";
+            }
+            
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+        
+        // Handle form submission
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                // Shake animation for error
+                const inputs = document.querySelectorAll('.login-form .form-control');
+                inputs.forEach(input => {
+                    input.classList.add('shake');
+                    setTimeout(() => {
+                        input.classList.remove('shake');
+                    }, 500);
+                });
+                
+                return;
+            }
+            
+            // Find user
+            const user = UserData.authenticate(email, password);
+            
+            if (!user) {
+                const notification = document.querySelector('.notification');
+                notification.textContent = "Invalid credentials. Please try again.";
+                notification.classList.add('show', 'error');
+                setTimeout(() => {
+                    notification.classList.remove('show', 'error');
+                }, 3000);
+                return;
+            }
+            
+            currentUser = user;
+            UserData.setCurrentUser(user);
+            
+            // Show badge
+            const badge = document.querySelector('.badge');
+            badge.classList.add('show');
+            
+            // Update XP
+            const xpProgress = document.querySelector('.login-form .xp-progress');
+            xpProgress.style.width = '60%';
+            
+            // Transition to dashboard
+            setTimeout(() => {
+                const card = document.querySelector('.portal-card');
+                card.style.transform = 'scale(0.9)';
+                card.style.opacity = '0';
+                
+                setTimeout(() => {
+                    document.querySelector('.portal-card').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    
+                    // Update dashboard with user info
+                    document.getElementById('username').textContent = user.name;
+                    document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4dabf7&color=fff`;
+                    
+                    // Animate dashboard entrance
+                    gsap.from('#dashboard', {
+                        duration: 1,
+                        opacity: 0,
+                        y: 100,
+                        ease: 'power3.out'
+                    });
+                }, 500);
+            }, 1500);
+        }
+        
+        // Handle signup form submission
+        function handleSignupForm() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                const inputs = document.querySelectorAll('.signup-form .form-control');
+                inputs.forEach(input => {
+                    input.classList.add('shake');
+                    setTimeout(() => {
+                        input.classList.remove('shake');
+                    }, 500);
+                });
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                const passwordInputs = document.querySelectorAll('.signup-form input[type="password"]');
+                passwordInputs.forEach(input => {
+                    input.classList.add('shake');
+                    setTimeout(() => {
+                        input.classList.remove('shake');
+                    }, 500);
+                });
+                
+                const notification = document.querySelector('.notification');
+                notification.textContent = "Access codes do not match!";
+                notification.classList.add('show', 'error');
+                setTimeout(() => {
+                    notification.classList.remove('show', 'error');
+                }, 3000);
+                return;
+            }
+            
+            // Store user data temporarily
+            window.userData = {
+                name: name,
+                email: email,
+                password: password,
+                role: "Student",
+                faceData: null,
+                qrData: null,
+                lastLogin: new Date()
+            };
+            
+            // Add to users
+            if (!UserData.addUser(window.userData)) {
+                const notification = document.querySelector('.notification');
+                notification.textContent = "User with this email already exists!";
+                notification.classList.add('show', 'error');
+                setTimeout(() => {
+                    notification.classList.remove('show', 'error');
+                }, 3000);
+                return;
+            }
+            
+            // Move to face capture
+            document.querySelector('.portal-card').classList.add('show-face');
+            document.querySelector('.portal-card').classList.remove('show-signup');
+            
+            // Initialize camera
+            initCamera();
+        }
+        
+        // Initialize camera for face capture
+        function initCamera() {
+            const video = document.getElementById('video');
+            const constraints = {
+                video: {
+                    facingMode: 'user'
+                }
+            };
+            
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then((stream) => {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    document.querySelector('.face-preview-placeholder').style.display = 'none';
+                })
+                .catch((err) => {
+                    console.error("Camera error: ", err);
+                    const notification = document.querySelector('.notification');
+                    notification.textContent = "Could not access camera. Please try again.";
+                    notification.classList.add('show', 'error');
+                    setTimeout(() => {
+                        notification.classList.remove('show', 'error');
+                    }, 3000);
+                });
+        }
+        
+        // Capture face
+        function captureFace() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw current video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Store captured image data
+            window.userData.faceImage = canvas.toDataURL('image/png');
+            
+            // Update user data
+            const user = UserData.users.find(u => u.email === window.userData.email);
+            if (user) {
+                user.faceData = window.userData.faceImage;
+                UserData.saveUsers();
+            }
+            
+            // Stop camera stream
+            const stream = video.srcObject;
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video.style.display = 'none';
+            
+            // Show captured image
+            const preview = document.querySelector('.face-preview');
+            preview.style.backgroundImage = `url(${window.userData.faceImage})`;
+            preview.style.backgroundSize = 'cover';
+            
+            // Move to QR code section
+            document.querySelector('.portal-card').classList.add('show-qr');
+            document.querySelector('.portal-card').classList.remove('show-face');
+            
+            // Generate QR code
+            generateQRCode();
+        }
+        
+        // Generate QR code
+        function generateQRCode() {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            // Generate unique user ID
+            const userId = `quantum-${Math.floor(Math.random() * 1000000)}`;
+            window.userData.userId = userId;
+            
+            // Update user data
+            const user = UserData.users.find(u => u.email === window.userData.email);
+            if (user) {
+                user.qrData = userId;
+                UserData.saveUsers();
+            }
+            
+            // Create QR code
+            new QRCode(qrContainer, {
+                text: JSON.stringify({
+                    userId: userId,
+                    name: window.userData.name,
+                    email: window.userData.email
+                }),
+                width: 180,
+                height: 180,
+                colorDark: "#1c7ed6",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Show success message
+            const notification = document.querySelector('.notification');
+            notification.textContent = `Welcome to Quantum, ${window.userData.name}! Your account is ready.`;
+            notification.classList.add('show', 'success');
+        }
+        
+        // Generate QR for login
+        function generateQRLogin() {
+            const qrLoginDisplay = document.getElementById('qr-login-display');
+            qrLoginDisplay.innerHTML = '';
+            
+            // Get current user
+            const email = document.getElementById('email').value;
+            const user = UserData.authenticate(email, document.getElementById('password').value);
+            
+            if (!user || !user.qrData) {
+                const notification = document.querySelector('.notification');
+                notification.textContent = "Please sign in with your credentials first.";
+                notification.classList.add('show', 'error');
+                setTimeout(() => {
+                    notification.classList.remove('show', 'error');
+                }, 3000);
+                return;
+            }
+            
+            // Create QR code
+            new QRCode(qrLoginDisplay, {
+                text: JSON.stringify({
+                    userId: user.qrData,
+                    name: user.name,
+                    email: user.email
+                }),
+                width: 180,
+                height: 180,
+                colorDark: "#1c7ed6",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        // Login with QR code
+        function loginWithQR() {
+            const email = document.getElementById('email').value;
+            const user = UserData.authenticate(email, document.getElementById('password').value);
+            
+            if (!user) {
+                const notification = document.querySelector('.notification');
+                notification.textContent = "User not found. Please sign in with your credentials first.";
+                notification.classList.add('show', 'error');
+                setTimeout(() => {
+                    notification.classList.remove('show', 'error');
+                }, 3000);
+                return;
+            }
+            
+            currentUser = user;
+            UserData.setCurrentUser(user);
+            
+            // Show badge
+            const badge = document.querySelector('.badge');
+            badge.classList.add('show');
+            
+            // Transition to dashboard
+            setTimeout(() => {
+                const card = document.querySelector('.portal-card');
+                card.style.transform = 'scale(0.9)';
+                card.style.opacity = '0';
+                
+                setTimeout(() => {
+                    document.querySelector('.portal-card').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    
+                    // Update dashboard with user info
+                    document.getElementById('username').textContent = user.name;
+                    document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=4dabf7&color=fff`;
+                    
+                    // Animate dashboard entrance
+                    gsap.from('#dashboard', {
+                        duration: 1,
+                        opacity: 0,
+                        y: 100,
+                        ease: 'power3.out'
+                    });
+                }, 500);
+            }, 1500);
+        }
+        
+        // Live user count animation
+        function animateUserCount() {
+            const countElement = document.querySelector('.user-count');
+            let count = 3295;
+            
+            setInterval(() => {
+                // Random fluctuation
+                const change = Math.floor(Math.random() * 10) - 3;
+                count = Math.max(3200, count + change);
+                countElement.textContent = count.toLocaleString();
+                
+                // Animate the change
+                countElement.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    countElement.style.transform = 'scale(1)';
+                }, 300);
+            }, 5000);
+        }
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize animations
+            initAIAssistant();
+            animateUserCount();
+            
+            // Form morphing on load
+            setTimeout(morphForm, 500);
+            
+            // Event listeners
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('signup-form-btn').addEventListener('click', handleSignupForm);
+            document.getElementById('capture-btn').addEventListener('click', captureFace);
+            
+            // Redirect to login after signup
+            document.getElementById('login-after-signup').addEventListener('click', function() {
+                const portalCard = document.querySelector('.portal-card');
+                portalCard.classList.remove('show-signup', 'show-face', 'show-qr', 'show-qr-login');
+                
+                document.getElementById('email').value = window.userData.email;
+                document.getElementById('password').focus();
+                
+                const notification = document.querySelector('.notification');
+                notification.textContent = "Account created! Please log in with your new credentials.";
+                notification.classList.add('show', 'success');
+                setTimeout(() => {
+                    notification.classList.remove('show', 'success');
+                }, 4000);
+            });
+            
+            document.getElementById('qr-login-submit').addEventListener('click', loginWithQR);
+            
+            // Form toggling
+            document.getElementById('show-signup').addEventListener('click', toggleForms);
+            document.getElementById('show-login').addEventListener('click', toggleForms);
+            
+            // Back buttons
+            document.getElementById('back-to-signup').addEventListener('click', () => {
+                document.querySelector('.portal-card').classList.add('show-signup');
+                document.querySelector('.portal-card').classList.remove('show-face');
+            });
+            
+            document.getElementById('back-to-face').addEventListener('click', () => {
+                document.querySelector('.portal-card').classList.add('show-face');
+                document.querySelector('.portal-card').classList.remove('show-qr');
+            });
+            
+            document.getElementById('back-to-login').addEventListener('click', () => {
+                document.querySelector('.portal-card').classList.remove('show-qr-login');
+            });
+            
+            // QR login button
+            document.getElementById('qr-login-btn').addEventListener('click', () => {
+                const email = document.getElementById('email').value;
+                
+                if (!email) {
+                    const notification = document.querySelector('.notification');
+                    notification.textContent = "Please enter your Quantum ID first";
+                    notification.classList.add('show', 'error');
+                    setTimeout(() => {
+                        notification.classList.remove('show', 'error');
+                    }, 3000);
+                    return;
+                }
+                
+                const user = UserData.authenticate(email, document.getElementById('password').value);
+                
+                if (!user) {
+                    const notification = document.querySelector('.notification');
+                    notification.textContent = "User not found. Please sign up first.";
+                    notification.classList.add('show', 'error');
+                    setTimeout(() => {
+                        notification.classList.remove('show', 'error');
+                    }, 3000);
+                    return;
+                }
+                
+                document.querySelector('.portal-card').classList.add('show-qr-login');
+                generateQRLogin();
+            });
+            
+            // Face login
+            document.getElementById('face-login').addEventListener('click', () => {
+                const notification = document.querySelector('.notification');
+                notification.textContent = "Initializing facial recognition...";
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.textContent = "Face recognized! Welcome back.";
+                    notification.classList.add('success');
+                }, 2000);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show', 'success');
+                    handleLogin();
+                }, 4000);
+            });
+            
+            // Sound toggle
+            document.querySelector('.sound-toggle').addEventListener('click', function() {
+                this.querySelector('i').classList.toggle('fa-volume-up');
+                this.querySelector('i').classList.toggle('fa-volume-mute');
+            });
+            
+            // Dashboard logout
+            document.getElementById('dashboard-logout').addEventListener('click', function() {
+                UserData.clearSession();
+                document.getElementById('dashboard').style.display = 'none';
+                document.querySelector('.portal-card').style.display = 'block';
+                document.querySelector('.portal-card').style.transform = 'scale(1)';
+                document.querySelector('.portal-card').style.opacity = '1';
+                
+                // Reset forms
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                
+                const notification = document.querySelector('.notification');
+                notification.textContent = "You have been logged out successfully.";
+                notification.classList.add('show', 'success');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            });
+            
+            // Menu toggle for responsive
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('active');
+            });
+            
+            // Check if user is already logged in
+            const currentUser = UserData.getCurrentUser();
+            if (currentUser) {
+                document.querySelector('.portal-card').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('username').textContent = currentUser.name;
+                document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=4dabf7&color=fff`;
+            }
+        });
+    </script>
+</body>
+</html>

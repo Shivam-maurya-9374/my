@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .filter-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        select, input, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .homework-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .homework-card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .homework-card-header {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .homework-card-header h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .homework-card-body {
+            padding: 15px;
+        }
+        
+        .homework-details {
+            margin-bottom: 10px;
+        }
+        
+        .homework-details p {
+            margin: 5px 0;
+        }
+        
+        .homework-details strong {
+            display: inline-block;
+            min-width: 80px;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+        .status-pending {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        
+        .status-completed {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        
+        .priority-high {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .priority-medium {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        
+        .priority-low {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Homework Management System</h1>
+            <button class="btn btn-primary" onclick="openHomeworkModal()">
+                <i class="fas fa-plus"></i> Add Homework
+            </button>
+        </div>
+        
+        <div class="filter-container">
+            <h3>Filter Homework</h3>
+            <div class="filter-row">
+                <div class="form-group">
+                    <label for="classFilter">Class</label>
+                    <select id="classFilter" onchange="filterHomework()">
+                        <option value="">All Classes</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subjectFilter">Subject</label>
+                    <input type="text" id="subjectFilter" placeholder="Subject" oninput="filterHomework()">
+                </div>
+                <div class="form-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter" onchange="filterHomework()">
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priorityFilter">Priority</label>
+                    <select id="priorityFilter" onchange="filterHomework()">
+                        <option value="">All Priorities</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div id="homeworkContainer" class="homework-container">
+            <p style="text-align: center; grid-column: 1/-1;">No homework assignments found</p>
+        </div>
+    </div>
+    
+    <!-- Homework Modal -->
+    <div id="homeworkModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="homeworkModalTitle">Add Homework</h2>
+                <span class="close" onclick="closeHomeworkModal()">&times;</span>
+            </div>
+            
+            <form id="homeworkForm" onsubmit="saveHomework(event)">
+                <div class="form-group">
+                    <label for="hwClass">Class</label>
+                    <select id="hwClass" required>
+                        <option value="">Select Class</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hwSection">Section</label>
+                    <input type="text" id="hwSection" required placeholder="e.g., A, B, C">
+                </div>
+                
+                <div class="form-group">
+                    <label for="hwSubject">Subject</label>
+                    <input type="text" id="hwSubject" required placeholder="Subject">
+                </div>
+                
+                <div class="form-group">
+                    <label for="hwTitle">Title</label>
+                    <input type="text" id="hwTitle" required placeholder="Homework Title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="hwDescription">Description</label>
+                    <textarea id="hwDescription" required placeholder="Homework description..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hwDueDate">Due Date</label>
+                    <input type="date" id="hwDueDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hwPriority">Priority</label>
+                    <select id="hwPriority" required>
+                        <option value="High">High</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hwStatus">Status</label>
+                    <select id="hwStatus" required>
+                        <option value="Pending" selected>Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeHomeworkModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Homework</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHomework();
+            
+            // Set default due date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('hwDueDate').value = tomorrow.toISOString().split('T')[0];
+        });
+        
+        // Load all homework assignments
+        function loadHomework() {
+            const homeworkAssignments = getData('homeworkAssignments') || [];
+            const container = document.getElementById('homeworkContainer');
+            container.innerHTML = '';
+            
+            if (homeworkAssignments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No homework assignments found</p>';
+                return;
+            }
+            
+            homeworkAssignments.forEach((homework, index) => {
+                const homeworkCard = document.createElement('div');
+                homeworkCard.className = 'homework-card';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'homework-card-header';
+                cardHeader.innerHTML = `
+                    <h4>${homework.subject} - ${homework.title}</h4>
+                    <div class="action-btns">
+                        <button class="btn btn-primary" onclick="editHomework(${index})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteHomework(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'homework-card-body';
+                
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'homework-details';
+                
+                // Determine priority and status classes
+                const priorityClass = homework.priority === 'High' ? 'priority-high' : 
+                                      homework.priority === 'Medium' ? 'priority-medium' : 'priority-low';
+                
+                const statusClass = homework.status === 'Pending' ? 'status-pending' : 'status-completed';
+                
+                detailsDiv.innerHTML = `
+                    <p><strong>Class:</strong> ${homework.class} - ${homework.section}</p>
+                    <p><strong>Due Date:</strong> ${homework.dueDate}</p>
+                    <p><strong>Priority:</strong> <span class="${priorityClass}">${homework.priority}</span></p>
+                    <p><strong>Status:</strong> <span class="${statusClass}">${homework.status}</span></p>
+                    <p><strong>Description:</strong></p>
+                    <p>${homework.description}</p>
+                `;
+                
+                cardBody.appendChild(detailsDiv);
+                homeworkCard.appendChild(cardHeader);
+                homeworkCard.appendChild(cardBody);
+                container.appendChild(homeworkCard);
+            });
+        }
+        
+        // Filter homework assignments
+        function filterHomework() {
+            const classFilter = document.getElementById('classFilter').value;
+            const subjectFilter = document.getElementById('subjectFilter').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            
+            const homeworkAssignments = getData('homeworkAssignments') || [];
+            const container = document.getElementById('homeworkContainer');
+            container.innerHTML = '';
+            
+            if (homeworkAssignments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No homework assignments found</p>';
+                return;
+            }
+            
+            let filteredHomework = homeworkAssignments;
+            
+            if (classFilter) {
+                filteredHomework = filteredHomework.filter(h => h.class === classFilter);
+            }
+            
+            if (subjectFilter) {
+                filteredHomework = filteredHomework.filter(h => 
+                    h.subject.toLowerCase().includes(subjectFilter));
+            }
+            
+            if (statusFilter) {
+                filteredHomework = filteredHomework.filter(h => h.status === statusFilter);
+            }
+            
+            if (priorityFilter) {
+                filteredHomework = filteredHomework.filter(h => h.priority === priorityFilter);
+            }
+            
+            if (filteredHomework.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No homework matches the filters</p>';
+                return;
+            }
+            
+            filteredHomework.forEach((homework, index) => {
+                // Find original index
+                const originalIndex = homeworkAssignments.findIndex(h => 
+                    h.class === homework.class && 
+                    h.section === homework.section && 
+                    h.subject === homework.subject && 
+                    h.title === homework.title);
+                
+                const homeworkCard = document.createElement('div');
+                homeworkCard.className = 'homework-card';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'homework-card-header';
+                cardHeader.innerHTML = `
+                    <h4>${homework.subject} - ${homework.title}</h4>
+                    <div class="action-btns">
+                        <button class="btn btn-primary" onclick="editHomework(${originalIndex})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteHomework(${originalIndex})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'homework-card-body';
+                
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'homework-details';
+                
+                // Determine priority and status classes
+                const priorityClass = homework.priority === 'High' ? 'priority-high' : 
+                                      homework.priority === 'Medium' ? 'priority-medium' : 'priority-low';
+                
+                const statusClass = homework.status === 'Pending' ? 'status-pending' : 'status-completed';
+                
+                detailsDiv.innerHTML = `
+                    <p><strong>Class:</strong> ${homework.class} - ${homework.section}</p>
+                    <p><strong>Due Date:</strong> ${homework.dueDate}</p>
+                    <p><strong>Priority:</strong> <span class="${priorityClass}">${homework.priority}</span></p>
+                    <p><strong>Status:</strong> <span class="${statusClass}">${homework.status}</span></p>
+                    <p><strong>Description:</strong></p>
+                    <p>${homework.description}</p>
+                `;
+                
+                cardBody.appendChild(detailsDiv);
+                homeworkCard.appendChild(cardHeader);
+                homeworkCard.appendChild(cardBody);
+                container.appendChild(homeworkCard);
+            });
+        }
+        
+        // Helper functions for localStorage
+        function getData(key) {
+            try {
+                return JSON.parse(localStorage.getItem(key)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+        
+        function setData(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+        
+        // Open homework modal
+        function openHomeworkModal() {
+            document.getElementById('homeworkModalTitle').textContent = 'Add Homework';
+            document.getElementById('homeworkForm').reset();
+            document.getElementById('homeworkForm').removeAttribute('data-edit-index');
+            
+            // Set default due date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('hwDueDate').value = tomorrow.toISOString().split('T')[0];
+            
+            document.getElementById('homeworkModal').style.display = 'block';
+        }
+        
+        // Edit homework
+        function editHomework(index) {
+            const homeworkAssignments = getData('homeworkAssignments') || [];
+            if (index < 0 || index >= homeworkAssignments.length) return;
+            
+            const homework = homeworkAssignments[index];
+            
+            document.getElementById('hwClass').value = homework.class;
+            document.getElementById('hwSection').value = homework.section;
+            document.getElementById('hwSubject').value = homework.subject;
+            document.getElementById('hwTitle').value = homework.title;
+            document.getElementById('hwDescription').value = homework.description;
+            document.getElementById('hwDueDate').value = homework.dueDate;
+            document.getElementById('hwPriority').value = homework.priority;
+            document.getElementById('hwStatus').value = homework.status;
+            
+            document.getElementById('homeworkForm').setAttribute('data-edit-index', index);
+            document.getElementById('homeworkModalTitle').textContent = `Edit Homework - ${homework.subject}`;
+            document.getElementById('homeworkModal').style.display = 'block';
+        }
+        
+        // Delete homework
+        function deleteHomework(index) {
+            if (!confirm('Are you sure you want to delete this homework assignment?')) return;
+            
+            const homeworkAssignments = getData('homeworkAssignments') || [];
+            if (index < 0 || index >= homeworkAssignments.length) return;
+            
+            homeworkAssignments.splice(index, 1);
+            setData('homeworkAssignments', homeworkAssignments);
+            loadHomework();
+        }
+        
+        // Save homework (add or update)
+        function saveHomework(event) {
+            event.preventDefault();
+            
+            const classValue = document.getElementById('hwClass').value;
+            const sectionValue = document.getElementById('hwSection').value.trim();
+            const subjectValue = document.getElementById('hwSubject').value.trim();
+            const titleValue = document.getElementById('hwTitle').value.trim();
+            const descriptionValue = document.getElementById('hwDescription').value.trim();
+            const dueDateValue = document.getElementById('hwDueDate').value;
+            const priorityValue = document.getElementById('hwPriority').value;
+            const statusValue = document.getElementById('hwStatus').value;
+            
+            if (!classValue || !sectionValue || !subjectValue || !titleValue || !descriptionValue || !dueDateValue) {
+                alert('Please fill all required fields.');
+                return;
+            }
+            
+            const homeworkData = {
+                class: classValue,
+                section: sectionValue,
+                subject: subjectValue,
+                title: titleValue,
+                description: descriptionValue,
+                dueDate: dueDateValue,
+                priority: priorityValue,
+                status: statusValue
+            };
+            
+            let homeworkAssignments = getData('homeworkAssignments') || [];
+            const editIndex = document.getElementById('homeworkForm').getAttribute('data-edit-index');
+            
+            if (editIndex !== null && editIndex !== '') {
+                // Update existing
+                homeworkAssignments[editIndex] = homeworkData;
+            } else {
+                // Check if homework with same class, section, subject and title already exists
+                const exists = homeworkAssignments.some(h => 
+                    h.class === classValue && 
+                    h.section === sectionValue && 
+                    h.subject === subjectValue && 
+                    h.title === titleValue);
+                
+                if (exists) {
+                    alert('A homework assignment with these details already exists.');
+                    return;
+                }
+                
+                // Add new
+                homeworkAssignments.push(homeworkData);
+            }
+            
+            setData('homeworkAssignments', homeworkAssignments);
+            loadHomework();
+            closeHomeworkModal();
+        }
+        
+        // Close homework modal
+        function closeHomeworkModal() {
+            document.getElementById('homeworkModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

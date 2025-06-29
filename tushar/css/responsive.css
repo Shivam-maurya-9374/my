@@ -1,0 +1,47 @@
+/* Responsive Table */
+@media (max-width: 768px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .table-container {
+        padding: 10px;
+        margin: 10px;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+}
+
+/* Small devices */
+@media (max-width: 576px) {
+    .header {
+        padding: 0 10px;
+    }
+    
+    .user-profile span {
+        display: none;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .activity-icon {
+        margin-bottom: 10px;
+    }
+    
+    .action-btns {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .btn {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+}

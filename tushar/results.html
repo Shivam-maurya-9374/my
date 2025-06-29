@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - School Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (same as index.html) -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>College<span>Pro</span></h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="results.html" class="active"><i class="fas fa-chart-line"></i> Results</a></li>
+                    <li><a href="library.html"><i class="fas fa-book"></i> Library</a></li>
+                    <li><a href="fees.html"><i class="fas fa-money-bill-wave"></i> Fees</a></li>
+                    <li><a href="timetable.html"><i class="fas fa-calendar-alt"></i> Time Table</a></li>
+                    <li><a href="homework.html"><i class="fas fa-tasks"></i> Homework</a></li>
+                    <li><a href="attendance.html"><i class="fas fa-user-check"></i> Attendance</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Results</h2>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <img src="assets/user.png" alt="User">
+                        <span>Admin</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="table-container">
+                <div class="table-title">
+                    <h3>Student Results</h3>
+                    <button class="btn btn-primary" onclick="openModal('addResultModal')">
+                        <i class="fas fa-plus"></i> Add Result
+                    </button>
+                </div>
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Grade</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Results will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Result Modal -->
+    <div class="modal" id="addResultModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Result</h3>
+                <button class="close-btn" onclick="closeModal('addResultModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addResultForm">
+                    <div class="form-group">
+                        <label for="studentName">Student Name</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentClass">Class</label>
+                        <select id="studentClass" required>
+                            <option value="">Select Class</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <select id="subject" required>
+                            <option value="">Select Subject</option>
+                            <option value="Math">Mathematics</option>
+                            <option value="Science">Science</option>
+                            <option value="English">English</option>
+                            <option value="History">History</option>
+                            <option value="Geography">Geography</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="marks">Marks</label>
+                        <input type="number" id="marks" min="0" max="100" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('addResultModal')">Cancel</button>
+                <button class="btn btn-success" onclick="addResult()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Result Modal -->
+    <div class="modal" id="editResultModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Result</h3>
+                <button class="close-btn" onclick="closeModal('editResultModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editResultForm">
+                    <input type="hidden" id="editResultId">
+                    <div class="form-group">
+                        <label for="editStudentName">Student Name</label>
+                        <input type="text" id="editStudentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStudentClass">Class</label>
+                        <select id="editStudentClass" required>
+                            <option value="">Select Class</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editSubject">Subject</label>
+                        <select id="editSubject" required>
+                            <option value="">Select Subject</option>
+                            <option value="Math">Mathematics</option>
+                            <option value="Science">Science</option>
+                            <option value="English">English</option>
+                            <option value="History">History</option>
+                            <option value="Geography">Geography</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editMarks">Marks</label>
+                        <input type="number" id="editMarks" min="0" max="100" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('editResultModal')">Cancel</button>
+                <button class="btn btn-success" onclick="updateResult()">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/results.js"></script>
+</body>
+</html>

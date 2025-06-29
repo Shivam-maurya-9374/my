@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - School Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (same as index.html) -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>College<span>Pro</span></h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="results.html"><i class="fas fa-chart-line"></i> Results</a></li>
+                    <li><a href="library.html" class="active"><i class="fas fa-book"></i> Library</a></li>
+                    <li><a href="fees.html"><i class="fas fa-money-bill-wave"></i> Fees</a></li>
+                    <li><a href="timetable.html"><i class="fas fa-calendar-alt"></i> Time Table</a></li>
+                    <li><a href="homework.html"><i class="fas fa-tasks"></i> Homework</a></li>
+                    <li><a href="attendance.html"><i class="fas fa-user-check"></i> Attendance</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Library</h2>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <img src="assets/user.png" alt="User">
+                        <span>Admin</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="table-container">
+                <div class="table-title">
+                    <h3>Library Books</h3>
+                    <button class="btn btn-primary" onclick="openModal('addBookModal')">
+                        <i class="fas fa-plus"></i> Add Book
+                    </button>
+                </div>
+                <table id="booksTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>ISBN</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Available</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Books will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div class="modal" id="addBookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Book</h3>
+                <button class="close-btn" onclick="closeModal('addBookModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addBookForm">
+                    <div class="form-group">
+                        <label for="bookTitle">Title</label>
+                        <input type="text" id="bookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookAuthor">Author</label>
+                        <input type="text" id="bookAuthor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookIsbn">ISBN</label>
+                        <input type="text" id="bookIsbn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookCategory">Category</label>
+                        <select id="bookCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Fiction">Fiction</option>
+                            <option value="Non-Fiction">Non-Fiction</option>
+                            <option value="Science">Science</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="History">History</option>
+                            <option value="Literature">Literature</option>
+                            <option value="Reference">Reference</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookQuantity">Quantity</label>
+                        <input type="number" id="bookQuantity" min="1" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('addBookModal')">Cancel</button>
+                <button class="btn btn-success" onclick="addBook()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Book Modal -->
+    <div class="modal" id="editBookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Book</h3>
+                <button class="close-btn" onclick="closeModal('editBookModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editBookForm">
+                    <input type="hidden" id="editBookId">
+                    <div class="form-group">
+                        <label for="editBookTitle">Title</label>
+                        <input type="text" id="editBookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookAuthor">Author</label>
+                        <input type="text" id="editBookAuthor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookIsbn">ISBN</label>
+                        <input type="text" id="editBookIsbn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookCategory">Category</label>
+                        <select id="editBookCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Fiction">Fiction</option>
+                            <option value="Non-Fiction">Non-Fiction</option>
+                            <option value="Science">Science</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="History">History</option>
+                            <option value="Literature">Literature</option>
+                            <option value="Reference">Reference</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBookQuantity">Quantity</label>
+                        <input type="number" id="editBookQuantity" min="1" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('editBookModal')">Cancel</button>
+                <button class="btn btn-success" onclick="updateBook()">Update</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/library.js"></script>
+</body>
+</html>

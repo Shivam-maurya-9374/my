@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Time Table & Attendance Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d35400;
+        }
+        
+        .filter-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        select, input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        
+        .timetables-container, .attendance-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .timetable-card, .attendance-card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .timetable-card-header, .attendance-card-header {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .attendance-card-header {
+            background-color: #2ecc71;
+        }
+        
+        .timetable-card-header h4, .attendance-card-header h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .timetable-card-body, .attendance-card-body {
+            padding: 15px;
+        }
+        
+        .mini-timetable, .mini-attendance {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        .mini-timetable th, .mini-timetable td,
+        .mini-attendance th, .mini-attendance td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .mini-timetable th, .mini-attendance th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .mini-timetable tr:nth-child(even),
+        .mini-attendance tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .present {
+            background-color: #d4edda;
+        }
+        
+        .absent {
+            background-color: #f8d7da;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .timetable-grid, .attendance-grid {
+            display: grid;
+            grid-template-columns: 120px repeat(5, 1fr);
+            gap: 1px;
+            background-color: #ddd;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        
+        .attendance-grid {
+            grid-template-columns: 150px repeat(5, 1fr);
+        }
+        
+        .timetable-row, .attendance-row {
+            display: contents;
+        }
+        
+        .timetable-cell, .attendance-cell {
+            background-color: white;
+            padding: 8px;
+            min-height: 40px;
+        }
+        
+        .timetable-header .timetable-cell,
+        .attendance-header .attendance-cell {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .attendance-header .attendance-cell {
+            background-color: #2ecc71;
+        }
+        
+        .timetable-period, .attendance-period {
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+        
+        .timetable-cell input, .attendance-cell select {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+        
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+        .service-tab {
+            margin-top: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .tab-btn {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn.active {
+            border-bottom: 3px solid #3498db;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .service-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .conflict-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .conflict-item {
+            background-color: #fff8f8;
+            border-left: 4px solid #e74c3c;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .conflict-item.warning {
+            background-color: #fffbf2;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .nav-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+            background-color: #f1f1f1;
+        }
+        
+        .nav-tab.active {
+            background-color: white;
+            border-color: #ddd;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .student-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .student-list th, .student-list td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .student-list th {
+            background-color: #f2f2f2;
+        }
+        
+        .student-list tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .attendance-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .summary-label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>College Time Table & Attendance Management</h1>
+        </div>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="openMainTab('timetable-tab')">Time Tables</div>
+            <div class="nav-tab" onclick="openMainTab('attendance-tab')">Attendance</div>
+            <div class="nav-tab" onclick="openMainTab('students-tab')">Students</div>
+        </div>
+        
+        <!-- Time Table Tab -->
+        <div id="timetable-tab" class="tab-panel active">
+            <div class="header">
+                <h2>Time Table Management</h2>
+                <button class="btn btn-primary" onclick="openTimetableModal()">
+                    <i class="fas fa-plus"></i> Add New Timetable
+                </button>
+            </div>
+            
+            <div class="filter-container">
+                <h3>Filter Timetables</h3>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label for="classFilter">Class</label>
+                        <select id="classFilter" onchange="filterTimetables()">
+                            <option value="">All Classes</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                            <option value="11">Class 11</option>
+                            <option value="12">Class 12</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="timetablesContainer" class="timetables-container">
+                <p style="text-align: center; grid-column: 1/-1;">No timetables found</p>
+            </div>
+        </div>
+        
+        <!-- Attendance Tab -->
+        <div id="attendance-tab" class="tab-panel">
+            <div class="header">
+                <h2>Attendance Management</h2>
+                <button class="btn btn-primary" onclick="openAttendanceModal()">
+                    <i class="fas fa-plus"></i> Take Attendance
+                </button>
+            </div>
+            
+            <div class="filter-container">
+                <h3>Filter Attendance</h3>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label for="attClassFilter">Class</label>
+                        <select id="attClassFilter" onchange="filterAttendance()">
+                            <option value="">All Classes</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                            <option value="11">Class 11</option>
+                            <option value="12">Class 12</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="attDateFilter">Date</label>
+                        <input type="date" id="attDateFilter" onchange="filterAttendance()">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="attendanceContainer" class="attendance-container">
+                <p style="text-align: center; grid-column: 1/-1;">No attendance records found</p>
+            </div>
+        </div>
+        
+        <!-- Students Tab -->
+        <div id="students-tab" class="tab-panel">
+            <div class="header">
+                <h2>Student Management</h2>
+                <button class="btn btn-primary" onclick="openStudentModal()">
+                    <i class="fas fa-plus"></i> Add Student
+                </button>
+            </div>
+            
+            <div class="filter-container">
+                <h3>Filter Students</h3>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label for="studentClassFilter">Class</label>
+                        <select id="studentClassFilter" onchange="filterStudents()">
+                            <option value="">All Classes</option>
+                            <option value="1">Class 1</option>
+                            <option value="2">Class 2</option>
+                            <option value="3">Class 3</option>
+                            <option value="4">Class 4</option>
+                            <option value="5">Class 5</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                            <option value="11">Class 11</option>
+                            <option value="12">Class 12</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentSectionFilter">Section</label>
+                        <input type="text" id="studentSectionFilter" placeholder="Section" oninput="filterStudents()">
+                    </div>
+                </div>
+            </div>
+            
+            <table id="studentsTable" class="student-list">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No students found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Timetable Modal -->
+    <div id="timetableModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="timetableModalTitle">Add New Timetable</h2>
+                <span class="close" onclick="closeTimetableModal()">&times;</span>
+            </div>
+            
+            <form id="timetableForm" onsubmit="saveTimetable(event)">
+                <div class="form-group">
+                    <label for="classInput">Class</label>
+                    <select id="classInput" required>
+                        <option value="">Select Class</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sectionInput">Section</label>
+                    <input type="text" id="sectionInput" required placeholder="e.g., A, B, C">
+                </div>
+                
+                <div id="timetableGrid" class="timetable-grid"></div>
+                
+                <div class="service-tab">
+                    <div class="tab-buttons">
+                        <button type="button" class="tab-btn active" onclick="openTab('teacher-tab')">Teacher Assignment</button>
+                        <button type="button" class="tab-btn" onclick="openTab('room-tab')">Room Allocation</button>
+                        <button type="button" class="tab-btn" onclick="openTab('conflict-tab')">Conflict Check</button>
+                    </div>
+                    
+                    <div id="teacher-tab" class="tab-content active">
+                        <div class="service-form">
+                            <select id="teacherDaySelect">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                            </select>
+                            <select id="teacherPeriodSelect">
+                                <option value="Period 1">Period 1</option>
+                                <option value="Period 2">Period 2</option>
+                                <option value="Period 3">Period 3</option>
+                                <option value="Period 4">Period 4</option>
+                                <option value="Period 5">Period 5</option>
+                                <option value="Period 6">Period 6</option>
+                            </select>
+                            <input type="text" id="teacherNameInput" placeholder="Teacher name">
+                            <button type="button" class="btn btn-primary" onclick="assignTeacher()">
+                                <i class="fas fa-user-plus"></i> Assign
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="room-tab" class="tab-content">
+                        <div class="service-form">
+                            <select id="roomDaySelect">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                            </select>
+                            <select id="roomPeriodSelect">
+                                <option value="Period 1">Period 1</option>
+                                <option value="Period 2">Period 2</option>
+                                <option value="Period 3">Period 3</option>
+                                <option value="Period 4">Period 4</option>
+                                <option value="Period 5">Period 5</option>
+                                <option value="Period 6">Period 6</option>
+                            </select>
+                            <input type="text" id="roomNumberInput" placeholder="Room number">
+                            <button type="button" class="btn btn-primary" onclick="assignRoom()">
+                                <i class="fas fa-door-open"></i> Assign
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="conflict-tab" class="tab-content">
+                        <button type="button" class="btn btn-primary" onclick="checkConflicts()">
+                            <i class="fas fa-search"></i> Check for Conflicts
+                        </button>
+                        <div id="conflictResults" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeTimetableModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Timetable</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Attendance Modal -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="attendanceModalTitle">Take Attendance</h2>
+                <span class="close" onclick="closeAttendanceModal()">&times;</span>
+            </div>
+            
+            <form id="attendanceForm" onsubmit="saveAttendance(event)">
+                <div class="form-group">
+                    <label for="attClassSelect">Class</label>
+                    <select id="attClassSelect" required onchange="updateSections()">
+                        <option value="">Select Class</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="attSectionSelect">Section</label>
+                    <select id="attSectionSelect" required>
+                        <option value="">Select Section</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="attDateInput">Date</label>
+                    <input type="date" id="attDateInput" required>
+                </div>
+                
+                <div id="attendanceGrid" class="attendance-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeAttendanceModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Attendance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Student Modal -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="studentModalTitle">Add Student</h2>
+                <span class="close" onclick="closeStudentModal()">&times;</span>
+            </div>
+            
+            <form id="studentForm" onsubmit="saveStudent(event)">
+                <div class="form-group">
+                    <label for="studentRollNo">Roll Number</label>
+                    <input type="text" id="studentRollNo" required placeholder="Roll Number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentName">Name</label>
+                    <input type="text" id="studentName" required placeholder="Student Name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentClass">Class</label>
+                    <select id="studentClass" required>
+                        <option value="">Select Class</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentSection">Section</label>
+                    <input type="text" id="studentSection" required placeholder="Section (e.g., A, B, C)">
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeStudentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Constants
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const periods = ['Period 1', 'Period 2', 'Period 3', 'Period 4', 'Period 5', 'Period 6'];
+        const attendanceStatus = ['Present', 'Absent'];
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTimetables();
+            initializeTimetableGrid('timetableGrid');
+            loadAttendance();
+            loadStudents();
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attDateInput').value = today;
+            document.getElementById('attDateFilter').value = today;
+        });
+        
+        // Tab navigation
+        function openMainTab(tabId) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Deactivate all tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Initialize timetable grid
+        function initializeTimetableGrid(gridId) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = '';
+            
+            // Create header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'timetable-row timetable-header';
+            
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'timetable-cell';
+            headerRow.appendChild(emptyCell);
+            
+            days.forEach(day => {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'timetable-cell';
+                dayCell.textContent = day;
+                headerRow.appendChild(dayCell);
+            });
+            
+            grid.appendChild(headerRow);
+            
+            // Create period rows
+            periods.forEach(period => {
+                const periodRow = document.createElement('div');
+                periodRow.className = 'timetable-row';
+                
+                const periodCell = document.createElement('div');
+                periodCell.className = 'timetable-cell timetable-period';
+                periodCell.textContent = period;
+                periodRow.appendChild(periodCell);
+                
+                days.forEach(day => {
+                    const subjectCell = document.createElement('div');
+                    subjectCell.className = 'timetable-cell';
+                    
+                    const subjectInput = document.createElement('input');
+                    subjectInput.type = 'text';
+                    subjectInput.placeholder = 'Subject';
+                    subjectInput.setAttribute('data-day', day);
+                    subjectInput.setAttribute('data-period', period);
+                    
+                    subjectCell.appendChild(subjectInput);
+                    periodRow.appendChild(subjectCell);
+                });
+                
+                grid.appendChild(periodRow);
+            });
+        }
+        
+        // Initialize attendance grid
+        function initializeAttendanceGrid(classVal, sectionVal) {
+            const grid = document.getElementById('attendanceGrid');
+            grid.innerHTML = '';
+            
+            // Create header row
+            const headerRow = document.createElement('div');
+            headerRow.className = 'attendance-row attendance-header';
+            
+            const studentHeader = document.createElement('div');
+            studentHeader.className = 'attendance-cell';
+            studentHeader.textContent = 'Student';
+            headerRow.appendChild(studentHeader);
+            
+            days.forEach(day => {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'attendance-cell';
+                dayCell.textContent = day;
+                headerRow.appendChild(dayCell);
+            });
+            
+            grid.appendChild(headerRow);
+            
+            // Get students for this class and section
+            const students = getStudentsByClassSection(classVal, sectionVal);
+            
+            if (students.length === 0) {
+                const emptyRow = document.createElement('div');
+                emptyRow.className = 'attendance-row';
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'attendance-cell';
+                emptyCell.colSpan = days.length + 1;
+                emptyCell.textContent = 'No students found for this class and section';
+                emptyCell.style.textAlign = 'center';
+                emptyCell.style.gridColumn = '1 / -1';
+                emptyRow.appendChild(emptyCell);
+                grid.appendChild(emptyRow);
+                return;
+            }
+            
+            // Create student rows
+            students.forEach(student => {
+                const studentRow = document.createElement('div');
+                studentRow.className = 'attendance-row';
+                
+                const studentCell = document.createElement('div');
+                studentCell.className = 'attendance-cell';
+                studentCell.textContent = `${student.rollNo} - ${student.name}`;
+                studentRow.appendChild(studentCell);
+                
+                days.forEach(day => {
+                    const statusCell = document.createElement('div');
+                    statusCell.className = 'attendance-cell';
+                    
+                    const statusSelect = document.createElement('select');
+                    statusSelect.setAttribute('data-rollno', student.rollNo);
+                    statusSelect.setAttribute('data-day', day);
+                    
+                    attendanceStatus.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = status;
+                        statusSelect.appendChild(option);
+                    });
+                    
+                    // Default to Present
+                    statusSelect.value = 'Present';
+                    
+                    statusCell.appendChild(statusSelect);
+                    studentRow.appendChild(statusCell);
+                });
+                
+                grid.appendChild(studentRow);
+            });
+        }
+        
+        // Load timetable data into grid
+        function loadTimetableToGrid(gridId, timetableData) {
+            const inputs = document.querySelectorAll(`#${gridId} input[type="text"]`);
+            inputs.forEach(input => {
+                const day = input.getAttribute('data-day');
+                const period = input.getAttribute('data-period');
+                
+                if (timetableData && timetableData[day] && timetableData[day][period]) {
+                    input.value = timetableData[day][period];
+                } else {
+                    input.value = '';
+                }
+            });
+        }
+        
+        // Load attendance data into grid
+        function loadAttendanceToGrid(attendanceData) {
+            const selects = document.querySelectorAll('#attendanceGrid select');
+            selects.forEach(select => {
+                const rollNo = select.getAttribute('data-rollno');
+                const day = select.getAttribute('data-day');
+                
+                if (attendanceData && attendanceData[rollNo] && attendanceData[rollNo][day]) {
+                    select.value = attendanceData[rollNo][day];
+                } else {
+                    select.value = 'Present'; // Default
+                }
+            });
+        }
+        
+        // Get timetable data from grid
+        function getTimetableFromGrid(gridId) {
+            const timetableData = {};
+            days.forEach(day => {
+                timetableData[day] = {};
+            });
+            
+            const inputs = document.querySelectorAll(`#${gridId} input[type="text"]`);
+            inputs.forEach(input => {
+                const day = input.getAttribute('data-day');
+                const period = input.getAttribute('data-period');
+                timetableData[day][period] = input.value;
+            });
+            
+            return timetableData;
+        }
+        
+        // Get attendance data from grid
+        function getAttendanceFromGrid() {
+            const attendanceData = {};
+            const selects = document.querySelectorAll('#attendanceGrid select');
+            
+            selects.forEach(select => {
+                const rollNo = select.getAttribute('data-rollno');
+                const day = select.getAttribute('data-day');
+                
+                if (!attendanceData[rollNo]) {
+                    attendanceData[rollNo] = {};
+                }
+                
+                attendanceData[rollNo][day] = select.value;
+            });
+            
+            return attendanceData;
+        }
+        
+        // Load all timetables
+        function loadTimetables() {
+            const timetables = getData('classTimetables') || [];
+            const container = document.getElementById('timetablesContainer');
+            container.innerHTML = '';
+            
+            if (timetables.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No timetables found</p>';
+                return;
+            }
+            
+            timetables.forEach((timetable, index) => {
+                const timetableCard = document.createElement('div');
+                timetableCard.className = 'timetable-card';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'timetable-card-header';
+                cardHeader.innerHTML = `
+                    <h4>Class ${timetable.class} - Section ${timetable.section}</h4>
+                    <div class="action-btns">
+                        <button class="btn btn-primary" onclick="editTimetable(${index})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteTimetable(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'timetable-card-body';
+                
+                // Create a mini timetable view
+                const miniTable = document.createElement('table');
+                miniTable.className = 'mini-timetable';
+                
+                // Header row
+                const headerRow = document.createElement('tr');
+                headerRow.innerHTML = '<th>Period</th>' + days.map(day => `<th>${day.substring(0, 3)}</th>`).join('');
+                miniTable.appendChild(headerRow);
+                
+                // Period rows
+                periods.forEach(period => {
+                    const row = document.createElement('tr');
+                    const periodCell = document.createElement('td');
+                    periodCell.textContent = period.replace('Period ', 'P');
+                    row.appendChild(periodCell);
+                    
+                    days.forEach(day => {
+                        const subjectCell = document.createElement('td');
+                        const entry = timetable.timetable[day]?.[period] || '';
+                        // Display just the subject name (before parenthesis if exists)
+                        subjectCell.textContent = entry.split(' (')[0].substring(0, 10) || '-';
+                        row.appendChild(subjectCell);
+                    });
+                    
+                    miniTable.appendChild(row);
+                });
+                
+                cardBody.appendChild(miniTable);
+                timetableCard.appendChild(cardHeader);
+                timetableCard.appendChild(cardBody);
+                container.appendChild(timetableCard);
+            });
+        }
+        
+        // Load all attendance records
+        function loadAttendance() {
+            const attendanceRecords = getData('attendanceRecords') || [];
+            const container = document.getElementById('attendanceContainer');
+            container.innerHTML = '';
+            
+            if (attendanceRecords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No attendance records found</p>';
+                return;
+            }
+            
+            attendanceRecords.forEach((record, index) => {
+                const attendanceCard = document.createElement('div');
+                attendanceCard.className = 'attendance-card';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'attendance-card-header';
+                cardHeader.innerHTML = `
+                    <h4>Class ${record.class} - Section ${record.section} (${record.date})</h4>
+                    <div class="action-btns">
+                        <button class="btn btn-primary" onclick="viewAttendance(${index})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteAttendance(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'attendance-card-body';
+                
+                // Create summary
+                const summary = document.createElement('div');
+                summary.className = 'attendance-summary';
+                
+                let presentCount = 0;
+                let absentCount = 0;
+                
+                // Count attendance status
+                Object.values(record.attendance).forEach(studentDays => {
+                    Object.values(studentDays).forEach(status => {
+                        if (status === 'Present') presentCount++;
+                        else absentCount++;
+                    });
+                });
+                
+                const total = presentCount + absentCount;
+                const presentPercent = total > 0 ? Math.round((presentCount / total) * 100) : 0;
+                
+                summary.innerHTML = `
+                    <div class="summary-row">
+                        <span class="summary-label">Total Students:</span>
+                        <span>${total}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Present:</span>
+                        <span>${presentCount} (${presentPercent}%)</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Absent:</span>
+                        <span>${absentCount}</span>
+                    </div>
+                `;
+                
+                cardBody.appendChild(summary);
+                attendanceCard.appendChild(cardHeader);
+                attendanceCard.appendChild(cardBody);
+                container.appendChild(attendanceCard);
+            });
+        }
+        
+        // Load all students
+        function loadStudents() {
+            const students = getData('students') || [];
+            const container = document.getElementById('studentsTable').querySelector('tbody');
+            container.innerHTML = '';
+            
+            if (students.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5" style="text-align: center;">No students found</td>';
+                container.appendChild(row);
+                return;
+            }
+            
+            students.forEach((student, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.rollNo}</td>
+                    <td>${student.name}</td>
+                    <td>Class ${student.class}</td>
+                    <td>${student.section}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editStudent(${index})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteStudent(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        // Filter timetables by class
+        function filterTimetables() {
+            const classFilter = document.getElementById('classFilter').value;
+            const timetables = getData('classTimetables') || [];
+            const container = document.getElementById('timetablesContainer');
+            container.innerHTML = '';
+            
+            if (timetables.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No timetables found</p>';
+                return;
+            }
+            
+            const filteredTimetables = classFilter ? 
+                timetables.filter(t => t.class === classFilter) : 
+                timetables;
+            
+            if (filteredTimetables.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No timetables match the selected class</p>';
+                return;
+            }
+            
+            filteredTimetables.forEach((timetable, index) => {
+                // Find the original index in case of filtering
+                const originalIndex = timetables.findIndex(t => 
+                    t.class === timetable.class && t.section === timetable.section);
+                
+                const timetableCard = document.createElement('div');
+                timetableCard.className = 'timetable-card';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'timetable-card-header';
+                cardHeader.innerHTML = `
+                    <h4>Class ${timetable.class} - Section ${timetable.section}</h4>
+                    <div class="action-btns">
+                        <button class="btn btn-primary" onclick="editTimetable(${originalIndex})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteTimetable(${originalIndex})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'timetable-card-body';
+                
+                // Create a mini timetable view
+                const miniTable = document.createElement('table');
+                miniTable.className = 'mini-timetable';
+                
+                // Header row
+                const headerRow = document.createElement('tr');
+                headerRow.innerHTML = '<th>Period</th>' + days.map(day => `<th>${day.substring(0, 3)}</th>`).join('');
+                miniTable.appendChild(headerRow);
+                
+                // Period rows
+                periods.forEach(period => {
+                    const row = document.createElement('tr');
+                    const periodCell = document.createElement('td');
+                    periodCell.textContent = period.replace('Period ', 'P');
+                    row.appendChild(periodCell);
+                    
+                    days.forEach(day => {
+                        const subjectCell = document.createElement('td');
+                        const entry = timetable.timetable[day]?.[period] || '';
+                        subjectCell.textContent = entry.split(' (')[0].substring(0, 10) || '-';
+                        row.appendChild(subjectCell);
+                    });
+                    
+                    miniTable.appendChild(row);
+                });
+                
+                cardBody.appendChild(miniTable);
+                timetableCard.appendChild(cardHeader);
+                timetableCard.appendChild(cardBody);
+                container.appendChild(timetableCard);
+            });
+        }
+        
+        // Filter attendance records
+        function filterAttendance() {
+            const classFilter = document.getElementById('attClassFilter').value;
+            const dateFilter = document.getElementById('attDateFilter').value;
+            const attendanceRecords = getData('attendanceRecords') || [];
+            const container = document.getElementById('attendanceContainer');
+            container.innerHTML = '';
+            
+            if (attendanceRecords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No attendance records found</p>';
+                return;
+            }
+            
+            let filteredRecords = attendanceRecords;
+            
+            if (classFilter) {
+                filteredRecords = filteredRecords.filter(r => r.class === classFilter);
+            }
+            
+            if (dateFilter) {
+                filteredRecords = filteredRecords.filter(r => r.date === dateFilter);
+            }
+            
+            if (filteredRecords.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No records match the filters</p>';
+                return;
+            }
+            
+            filteredRecords.forEach((record, index) => {
+                // Find original index
+                const originalIndex = attendanceRecords.findIndex(r => 
+                    r.class === record.class && 
+                    r.section === record.section && 
+                    r.date === record.date);
+                
+                const attendanceCard = document.createElement('div');
+                attendanceCard.className = 'attendance-card';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'attendance-card-header';
+                cardHeader.innerHTML = `
+                    <h4>Class ${record.class} - Section ${record.section} (${record.date})</h4>
+                    <div class="action-btns">
+                        <button class="btn btn-primary" onclick="viewAttendance(${originalIndex})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteAttendance(${originalIndex})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'attendance-card-body';
+                
+                // Create summary
+                const summary = document.createElement('div');
+                summary.className = 'attendance-summary';
+                
+                let presentCount = 0;
+                let absentCount = 0;
+                
+                // Count attendance status
+                Object.values(record.attendance).forEach(studentDays => {
+                    Object.values(studentDays).forEach(status => {
+                        if (status === 'Present') presentCount++;
+                        else absentCount++;
+                    });
+                });
+                
+                const total = presentCount + absentCount;
+                const presentPercent = total > 0 ? Math.round((presentCount / total) * 100) : 0;
+                
+                summary.innerHTML = `
+                    <div class="summary-row">
+                        <span class="summary-label">Total Students:</span>
+                        <span>${total}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Present:</span>
+                        <span>${presentCount} (${presentPercent}%)</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Absent:</span>
+                        <span>${absentCount}</span>
+                    </div>
+                `;
+                
+                cardBody.appendChild(summary);
+                attendanceCard.appendChild(cardHeader);
+                attendanceCard.appendChild(cardBody);
+                container.appendChild(attendanceCard);
+            });
+        }
+        
+        // Filter students
+        function filterStudents() {
+            const classFilter = document.getElementById('studentClassFilter').value;
+            const sectionFilter = document.getElementById('studentSectionFilter').value.toLowerCase();
+            const students = getData('students') || [];
+            const container = document.getElementById('studentsTable').querySelector('tbody');
+            container.innerHTML = '';
+            
+            let filteredStudents = students;
+            
+            if (classFilter) {
+                filteredStudents = filteredStudents.filter(s => s.class === classFilter);
+            }
+            
+            if (sectionFilter) {
+                filteredStudents = filteredStudents.filter(s => 
+                    s.section.toLowerCase().includes(sectionFilter));
+            }
+            
+            if (filteredStudents.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5" style="text-align: center;">No students match the filters</td>';
+                container.appendChild(row);
+                return;
+            }
+            
+            filteredStudents.forEach((student, index) => {
+                // Find original index
+                const originalIndex = students.findIndex(s => 
+                    s.rollNo === student.rollNo && 
+                    s.class === student.class && 
+                    s.section === student.section);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.rollNo}</td>
+                    <td>${student.name}</td>
+                    <td>Class ${student.class}</td>
+                    <td>${student.section}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editStudent(${originalIndex})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteStudent(${originalIndex})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        // Helper functions for localStorage
+        function getData(key) {
+            try {
+                return JSON.parse(localStorage.getItem(key)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+        
+        function setData(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+        
+        // Get students by class and section
+        function getStudentsByClassSection(classVal, sectionVal) {
+            const students = getData('students') || [];
+            return students.filter(s => 
+                s.class === classVal && s.section === sectionVal);
+        }
+        
+        // Update sections dropdown based on selected class
+        function updateSections() {
+            const classVal = document.getElementById('attClassSelect').value;
+            const sectionSelect = document.getElementById('attSectionSelect');
+            sectionSelect.innerHTML = '<option value="">Select Section</option>';
+            
+            if (!classVal) return;
+            
+            const students = getData('students') || [];
+            const sections = new Set();
+            
+            students.forEach(student => {
+                if (student.class === classVal) {
+                    sections.add(student.section);
+                }
+            });
+            
+            sections.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section;
+                option.textContent = section;
+                sectionSelect.appendChild(option);
+            });
+        }
+        
+        // Open timetable modal
+        function openTimetableModal() {
+            document.getElementById('timetableModalTitle').textContent = 'Add New Timetable';
+            document.getElementById('timetableForm').reset();
+            document.getElementById('timetableForm').removeAttribute('data-edit-index');
+            initializeTimetableGrid('timetableGrid');
+            document.getElementById('timetableModal').style.display = 'block';
+        }
+        
+        // Open attendance modal
+        function openAttendanceModal() {
+            document.getElementById('attendanceModalTitle').textContent = 'Take Attendance';
+            document.getElementById('attendanceForm').reset();
+            document.getElementById('attendanceForm').removeAttribute('data-edit-index');
+            
+            // Set default date to today
+            document.getElementById('attDateInput').value = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('attendanceModal').style.display = 'block';
+        }
+        
+        // Open student modal
+        function openStudentModal() {
+            document.getElementById('studentModalTitle').textContent = 'Add Student';
+            document.getElementById('studentForm').reset();
+            document.getElementById('studentForm').removeAttribute('data-edit-index');
+            document.getElementById('studentModal').style.display = 'block';
+        }
+        
+        // Edit timetable
+        function editTimetable(index) {
+            const timetables = getData('classTimetables') || [];
+            if (index < 0 || index >= timetables.length) return;
+            const timetable = timetables[index];
+            document.getElementById('classInput').value = timetable.class;
+            document.getElementById('sectionInput').value = timetable.section;
+            loadTimetableToGrid('timetableGrid', timetable.timetable);
+            document.getElementById('timetableForm').setAttribute('data-edit-index', index);
+            document.getElementById('timetableModalTitle').textContent = `Edit Timetable - Class ${timetable.class} Section ${timetable.section}`;
+            document.getElementById('timetableModal').style.display = 'block';
+        }
+        
+        // View attendance
+        function viewAttendance(index) {
+            const attendanceRecords = getData('attendanceRecords') || [];
+            if (index < 0 || index >= attendanceRecords.length) return;
+            const record = attendanceRecords[index];
+            
+            document.getElementById('attClassSelect').value = record.class;
+            updateSections();
+            document.getElementById('attSectionSelect').value = record.section;
+            document.getElementById('attDateInput').value = record.date;
+            
+            initializeAttendanceGrid(record.class, record.section);
+            loadAttendanceToGrid(record.attendance);
+            
+            // Disable form controls for viewing
+            document.getElementById('attClassSelect').disabled = true;
+            document.getElementById('attSectionSelect').disabled = true;
+            document.getElementById('attDateInput').disabled = true;
+            
+            document.getElementById('attendanceModalTitle').textContent = `View Attendance - Class ${record.class} Section ${record.section} (${record.date})`;
+            document.getElementById('attendanceModal').style.display = 'block';
+        }
+        
+        // Edit student
+        function editStudent(index) {
+            const students = getData('students') || [];
+            if (index < 0 || index >= students.length) return;
+            const student = students[index];
+            
+            document.getElementById('studentRollNo').value = student.rollNo;
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('studentClass').value = student.class;
+            document.getElementById('studentSection').value = student.section;
+            
+            document.getElementById('studentForm').setAttribute('data-edit-index', index);
+            document.getElementById('studentModalTitle').textContent = `Edit Student - ${student.name}`;
+            document.getElementById('studentModal').style.display = 'block';
+        }
+        
+        // Delete timetable
+        function deleteTimetable(index) {
+            if (!confirm('Are you sure you want to delete this timetable?')) return;
+            const timetables = getData('classTimetables') || [];
+            if (index < 0 || index >= timetables.length) return;
+            timetables.splice(index, 1);
+            setData('classTimetables', timetables);
+            loadTimetables();
+        }
+        
+        // Delete attendance record
+        function deleteAttendance(index) {
+            if (!confirm('Are you sure you want to delete this attendance record?')) return;
+            const attendanceRecords = getData('attendanceRecords') || [];
+            if (index < 0 || index >= attendanceRecords.length) return;
+            attendanceRecords.splice(index, 1);
+            setData('attendanceRecords', attendanceRecords);
+            loadAttendance();
+        }
+        
+        // Delete student
+        function deleteStudent(index) {
+            if (!confirm('Are you sure you want to delete this student?')) return;
+            const students = getData('students') || [];
+            if (index < 0 || index >= students.length) return;
+            students.splice(index, 1);
+            setData('students', students);
+            loadStudents();
+        }
+        
+        // Save timetable (add or update)
+        function saveTimetable(event) {
+            event.preventDefault();
+            const classValue = document.getElementById('classInput').value.trim();
+            const sectionValue = document.getElementById('sectionInput').value.trim();
+            if (!classValue || !sectionValue) {
+                alert('Please enter class and section.');
+                return;
+            }
+            
+            const timetableData = getTimetableFromGrid('timetableGrid');
+            let timetables = getData('classTimetables') || [];
+            const editIndex = document.getElementById('timetableForm').getAttribute('data-edit-index');
+            
+            if (editIndex !== null && editIndex !== '') {
+                // Update existing
+                timetables[editIndex] = {
+                    class: classValue,
+                    section: sectionValue,
+                    timetable: timetableData
+                };
+            } else {
+                // Check if timetable for this class-section already exists
+                const exists = timetables.some(t => 
+                    t.class === classValue && t.section === sectionValue);
+                
+                if (exists) {
+                    alert('A timetable for this class and section already exists.');
+                    return;
+                }
+                
+                // Add new
+                timetables.push({
+                    class: classValue,
+                    section: sectionValue,
+                    timetable: timetableData
+                });
+            }
+            
+            setData('classTimetables', timetables);
+            loadTimetables();
+            closeTimetableModal();
+        }
+        
+        // Save attendance (add or update)
+        function saveAttendance(event) {
+            event.preventDefault();
+            const classValue = document.getElementById('attClassSelect').value;
+            const sectionValue = document.getElementById('attSectionSelect').value;
+            const dateValue = document.getElementById('attDateInput').value;
+            
+            if (!classValue || !sectionValue || !dateValue) {
+                alert('Please fill all fields.');
+                return;
+            }
+            
+            const attendanceData = getAttendanceFromGrid();
+            let attendanceRecords = getData('attendanceRecords') || [];
+            const editIndex = document.getElementById('attendanceForm').getAttribute('data-edit-index');
+            
+            if (editIndex !== null && editIndex !== '') {
+                // Update existing
+                attendanceRecords[editIndex] = {
+                    class: classValue,
+                    section: sectionValue,
+                    date: dateValue,
+                    attendance: attendanceData
+                };
+            } else {
+                // Check if attendance for this class-section-date already exists
+                const exists = attendanceRecords.some(r => 
+                    r.class === classValue && 
+                    r.section === sectionValue && 
+                    r.date === dateValue);
+                
+                if (exists) {
+                    alert('Attendance for this class, section and date already exists.');
+                    return;
+                }
+                
+                // Add new
+                attendanceRecords.push({
+                    class: classValue,
+                    section: sectionValue,
+                    date: dateValue,
+                    attendance: attendanceData
+                });
+            }
+            
+            setData('attendanceRecords', attendanceRecords);
+            loadAttendance();
+            closeAttendanceModal();
+        }
+        
+        // Save student (add or update)
+        function saveStudent(event) {
+            event.preventDefault();
+            const rollNo = document.getElementById('studentRollNo').value.trim();
+            const name = document.getElementById('studentName').value.trim();
+            const classValue = document.getElementById('studentClass').value;
+            const sectionValue = document.getElementById('studentSection').value.trim();
+            
+            if (!rollNo || !name || !classValue || !sectionValue) {
+                alert('Please fill all fields.');
+                return;
+            }
+            
+            const studentData = {
+                rollNo,
+                name,
+                class: classValue,
+                section: sectionValue
+            };
+            
+            let students = getData('students') || [];
+            const editIndex = document.getElementById('studentForm').getAttribute('data-edit-index');
+            
+            if (editIndex !== null && editIndex !== '') {
+                // Update existing
+                students[editIndex] = studentData;
+            } else {
+                // Check if student with this roll no already exists
+                const exists = students.some(s => s.rollNo === rollNo);
+                
+                if (exists) {
+                    alert('A student with this roll number already exists.');
+                    return;
+                }
+                
+                // Add new
+                students.push(studentData);
+            }
+            
+            setData('students', students);
+            loadStudents();
+            closeStudentModal();
+        }
+        
+        // Close timetable modal
+        function closeTimetableModal() {
+            document.getElementById('timetableModal').style.display = 'none';
+        }
+        
+        // Close attendance modal
+        function closeAttendanceModal() {
+            // Re-enable form controls
+            document.getElementById('attClassSelect').disabled = false;
+            document.getElementById('attSectionSelect').disabled = false;
+            document.getElementById('attDateInput').disabled = false;
+            
+            document.getElementById('attendanceModal').style.display = 'none';
+        }
+        
+        // Close student modal
+        function closeStudentModal() {
+            document.getElementById('studentModal').style.display = 'none';
+        }
+        
+        // Tab navigation
+        function openTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Teacher assignment service
+        function assignTeacher() {
+            const day = document.getElementById('teacherDaySelect').value;
+            const period = document.getElementById('teacherPeriodSelect').value;
+            const teacherName = document.getElementById('teacherNameInput').value.trim();
+            
+            if (!teacherName) {
+                alert('Please enter teacher name');
+                return;
+            }
+            
+            const input = document.querySelector(`#timetableGrid input[data-day="${day}"][data-period="${period}"]`);
+            if (!input) return;
+            
+            let currentValue = input.value;
+            
+            // Remove existing teacher assignment if any
+            if (currentValue.includes('(')) {
+                currentValue = currentValue.split(' (')[0].trim();
+            }
+            
+            // Add new teacher assignment
+            input.value = currentValue + (currentValue ? ' ' : '') + `(${teacherName})`;
+            document.getElementById('teacherNameInput').value = '';
+        }
+        
+        // Room allocation service
+        function assignRoom() {
+            const day = document.getElementById('roomDaySelect').value;
+            const period = document.getElementById('roomPeriodSelect').value;
+            const roomNumber = document.getElementById('roomNumberInput').value.trim();
+            
+            if (!roomNumber) {
+                alert('Please enter room number');
+                return;
+            }
+            
+            const input = document.querySelector(`#timetableGrid input[data-day="${day}"][data-period="${period}"]`);
+            if (!input) return;
+            
+            let currentValue = input.value;
+            
+            // Remove existing room assignment if any
+            if (currentValue.includes('[')) {
+                currentValue = currentValue.split(' [')[0].trim();
+            }
+            
+            // Add new room assignment
+            input.value = currentValue + (currentValue ? ' ' : '') + `[${roomNumber}]`;
+            document.getElementById('roomNumberInput').value = '';
+        }
+        
+        // Conflict check service
+        function checkConflicts() {
+            const timetables = getData('classTimetables') || [];
+            const teacherAssignments = {};
+            let conflicts = [];
+            
+            timetables.forEach(timetable => {
+                days.forEach(day => {
+                    periods.forEach(period => {
+                        const entry = timetable.timetable[day]?.[period] || '';
+                        if (entry.includes('(') && entry.includes(')')) {
+                            const teacherMatch = entry.match(/\(([^)]+)\)/);
+                            if (teacherMatch) {
+                                const teacher = teacherMatch[1];
+                                const key = `${day}-${period}-${teacher}`;
+                                
+                                if (teacherAssignments[key]) {
+                                    conflicts.push({
+                                        type: 'teacher',
+                                        teacher,
+                                        day,
+                                        period,
+                                        class1: teacherAssignments[key].class,
+                                        section1: teacherAssignments[key].section,
+                                        class2: timetable.class,
+                                        section2: timetable.section
+                                    });
+                                } else {
+                                    teacherAssignments[key] = {
+                                        class: timetable.class,
+                                        section: timetable.section
+                                    };
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+            
+            displayConflicts(conflicts);
+        }
+        
+        // Display conflicts
+        function displayConflicts(conflicts) {
+            const resultsDiv = document.getElementById('conflictResults');
+            resultsDiv.innerHTML = '';
+            
+            if (conflicts.length === 0) {
+                resultsDiv.innerHTML = '<p>No conflicts found!</p>';
+                return;
+            }
+            
+            const conflictList = document.createElement('ul');
+            conflictList.className = 'conflict-list';
+            
+            conflicts.forEach(conflict => {
+                const conflictItem = document.createElement('li');
+                conflictItem.className = 'conflict-item';
+                
+                if (conflict.type === 'teacher') {
+                    conflictItem.innerHTML = `
+                        <strong>Teacher Conflict:</strong> ${conflict.teacher} is assigned to both:<br>
+                        - Class ${conflict.class1} Section ${conflict.section1}<br>
+                        - Class ${conflict.class2} Section ${conflict.section2}<br>
+                        <strong>Time:</strong> ${conflict.day}, ${conflict.period}
+                    `;
+                }
+                
+                conflictList.appendChild(conflictItem);
+            });
+            
+            resultsDiv.appendChild(conflictList);
+        }
+    </script>
+</body>
+</html>
